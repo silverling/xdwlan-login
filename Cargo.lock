@@ -3748,7 +3748,7 @@ checksum = "6a0ccd7b4a5345edfcd0c3535718a4e9ff7798ffc536bb5b5a0e26ff84732911"
 
 [[package]]
 name = "xdwlan-login"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "chrono",
@@ -3757,6 +3757,7 @@ dependencies = [
  "headless_chrome",
  "image",
  "log",
+ "regex",
  "reqwest",
  "serde",
  "serde_yaml",

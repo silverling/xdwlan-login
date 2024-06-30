@@ -16,7 +16,11 @@ impl LoginTask {
     }
 
     fn is_online(&self) -> bool {
-        if let Ok(resp) = reqwest::blocking::get("http://wifi.vivo.com.cn/generate_204") {
+        let client = reqwest::blocking::ClientBuilder::new()
+            .no_proxy()
+            .build()
+            .unwrap(); // This method only panics if called from within an async runtime.
+        if let Ok(resp) = client.get("http://wifi.vivo.com.cn/generate_204").send() {
             if resp.status().as_u16() == 204 {
                 log::debug!("You are online.");
                 return true;
@@ -26,6 +30,27 @@ impl LoginTask {
         } else {
             return false;
         }
+    }
+
+    fn get_login_url(&self) -> anyhow::Result<String> {
+        let client = reqwest::blocking::ClientBuilder::new().no_proxy().build()?;
+
+        // When you were offline, you will be redirct to the login page.
+        // Sometimes, the redirection will fail, so we try at most 5 times.
+        for _ in 0..5 {
+            let resp = client.get("http://www.baidu.com").send()?;
+            let content = resp.text()?;
+            if content.contains("w.xidian.edu.cn") {
+                let re = regex::Regex::new(
+                    r#"(?m)action="(?P<url>https://w\.xidian\.edu\.cn[a-zA-Z0-9./_]+)""#,
+                )?;
+                if let Some(cap) = re.captures(&content) {
+                    return Ok(cap["url"].to_string());
+                }
+            }
+        }
+
+        Err(anyhow::anyhow!("Login url not found.").into())
     }
 
     // In debug mode, we disable headless mode to see what's happening.
@@ -58,19 +83,25 @@ impl LoginTask {
 
     /// Open a browser and login to the network.
     pub fn login(&self) -> anyhow::Result<()> {
-        let browser = self.create_browser()?;
+        let url = self.get_login_url()?;
+        log::info!("Get login url: {}", url);
 
-        // Create a new tab.
+        // Create a browser and a new tab.
+        let browser = self.create_browser()?;
         let tab = browser.new_tab()?;
 
-        // When you were offline, you will be redirct to the login page.
-        // Sometimes, the redirection will fail, so we try at most 5 times.
-        for i in 0..6 {
-            if let Err(e) = tab.navigate_to("http://www.msftconnecttest.com/redirect") {
-                log::debug!("Navigate Error: {}", e);
+        // Navigate to the login page. Try at most 5 times.
+        for i in 0..5 {
+            match tab.navigate_to(&url) {
+                Ok(_) => {
+                    break;
+                }
+                Err(e) => {
+                    log::debug!("Navigate Error: {}", e);
 
-                if i == 5 {
-                    return Err(anyhow::anyhow!("Navigate failed for 5 times."));
+                    if i == 4 {
+                        return Err(anyhow::anyhow!("Navigate failed for 5 times."));
+                    }
                 }
             }
         }

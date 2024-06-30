@@ -1,7 +1,7 @@
 [package]
 name = "xdwlan-login"
 authors = ["Silver Ling <silver.ling@outlook.com>"]
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 
 [dependencies]
@@ -13,6 +13,7 @@ headless_chrome = "1.0.10"
 reqwest = { version = "0.12.5", features = ["blocking"] }
 serde = { version = "1.0.203", features = ["derive"] }
 serde_yaml = "0.9.34"
+regex = "1.10.5"
 
 [build-dependencies]
 embed-resource = "2.4.2"
