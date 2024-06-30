@@ -131,16 +131,9 @@ impl Task for LoginTask {
             }
         };
 
-        loop {
-            if should_quit(60) {
-                return Ok(());
-            }
-
-            if self.is_online() {
-                continue;
-            }
-
+        let simulate = || {
             log::info!("You are offline now.");
+
             loop {
                 if let Err(e) = self.login() {
                     log::error!("{}", e);
@@ -148,7 +141,7 @@ impl Task for LoginTask {
 
                 // Wait a second for network to be ready.
                 if should_quit(1) {
-                    return Ok(());
+                    return;
                 }
 
                 if self.is_online() {
@@ -158,8 +151,25 @@ impl Task for LoginTask {
 
                 // Hang up for 5 seconds for next login attempt to avoid being banned.
                 if should_quit(5) {
-                    return Ok(());
+                    return;
                 }
+            }
+        };
+
+        // Check the network status at first.
+        if self.is_online() {
+            log::info!("You are already online.");
+        } else {
+            simulate();
+        }
+
+        loop {
+            if should_quit(60) {
+                return Ok(());
+            }
+
+            if !self.is_online() {
+                simulate();
             }
         }
     }
