@@ -16,9 +16,10 @@ pub fn get_program_folder() -> String {
         .to_string()
 }
 
+#[cfg(target_os = "windows")]
 const REG_KEY_NAME: &str = "Xidian WLAN Login";
 
-#[cfg(windows)]
+#[cfg(target_os = "windows")]
 pub fn is_autostart() -> bool {
     let hkcu = winreg::RegKey::predef(winreg::enums::HKEY_CURRENT_USER);
     let reg = hkcu.open_subkey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run");
@@ -38,7 +39,7 @@ pub fn is_autostart() -> bool {
     }
 }
 
-#[cfg(windows)]
+#[cfg(target_os = "windows")]
 pub fn toggle_autostart() -> anyhow::Result<bool> {
     let hkcu = winreg::RegKey::predef(winreg::enums::HKEY_CURRENT_USER);
     let (reg, _) = hkcu.create_subkey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run")?;

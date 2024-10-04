@@ -1,6 +1,8 @@
 use std::io::Write;
 
-#[cfg(debug_assertions)]
+const TIME_FORMAT: &str = "%Y-%m-%dT%H:%M:%S%.3f%:z";
+
+#[cfg(debug_assertions)] // Debug mode.
 pub fn setup_logger() {
     use log::LevelFilter;
 
@@ -8,8 +10,8 @@ pub fn setup_logger() {
         .format(|buf, record| {
             writeln!(
                 buf,
-                "[{} {}\t{}] - {}",
-                chrono::Local::now().format("%Y-%m-%dT%H:%M:%S%.3f%:z"),
+                "[{} {} {}] {}",
+                chrono::Local::now().format(TIME_FORMAT),
                 record.level(),
                 record.target(),
                 record.args()
@@ -19,7 +21,28 @@ pub fn setup_logger() {
         .init();
 }
 
-#[cfg(not(debug_assertions))]
+#[cfg(all(not(debug_assertions), target_os = "linux"))] // Release mode on Linux.
+pub fn setup_logger() {
+    // Allow logger to be configured via an environment variable.
+    let env = env_logger::Env::default()
+        .default_filter_or("info,headless_chrome=error")
+        .default_write_style_or("always");
+
+    env_logger::Builder::from_env(env)
+        .format(|buf, record| {
+            writeln!(
+                buf,
+                "[{} {} {}] {}",
+                chrono::Local::now().format(TIME_FORMAT),
+                record.level(),
+                record.target(),
+                record.args()
+            )
+        })
+        .init();
+}
+
+#[cfg(all(not(debug_assertions), target_os = "windows"))] // Release mode on Windows.
 pub fn setup_logger() {
     use crate::utils::get_program_folder;
 
@@ -37,15 +60,15 @@ pub fn setup_logger() {
 
     // Allow logger to be configured via an environment variable.
     let env = env_logger::Env::default()
-        .default_filter_or("info,headless_chrome=warn")
+        .default_filter_or("info,headless_chrome=error")
         .default_write_style_or("always");
 
     env_logger::Builder::from_env(env)
         .format(|buf, record| {
             writeln!(
                 buf,
-                "[{} {}\t{}] - {}",
-                chrono::Local::now().format("%Y-%m-%dT%H:%M:%S%.3f%:z"),
+                "[{} {} {}] {}",
+                chrono::Local::now().format(TIME_FORMAT),
                 record.level(),
                 record.target(),
                 record.args()

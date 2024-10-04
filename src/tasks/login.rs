@@ -15,14 +15,13 @@ impl LoginTask {
         LoginTask { username, password }
     }
 
-    fn is_online(&self) -> bool {
+    pub fn is_online(&self) -> bool {
         let client = reqwest::blocking::ClientBuilder::new()
             .no_proxy()
             .build()
             .unwrap(); // This method only panics if called from within an async runtime.
         if let Ok(resp) = client.get("http://wifi.vivo.com.cn/generate_204").send() {
             if resp.status().as_u16() == 204 {
-                log::debug!("You are online.");
                 return true;
             } else {
                 return false;
@@ -84,7 +83,7 @@ impl LoginTask {
     /// Open a browser and login to the network.
     pub fn login(&self) -> anyhow::Result<()> {
         let url = self.get_login_url()?;
-        log::info!("Get login url: {}", url);
+        log::info!("Got login url: {}", url);
 
         // Create a browser and a new tab.
         let browser = self.create_browser()?;
@@ -137,7 +136,7 @@ impl LoginTask {
                 false,
             )?;
         } else {
-            log::debug!("Unknown page url: {}", url);
+            log::error!("Unknown login url: {}", url);
         }
 
         Ok(())
