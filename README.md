@@ -17,12 +17,38 @@
 
 ## 使用说明
 
-### 下载使用
+### Windows 系统
 
-- 在 Release 页面下载 zip 文件并解压
+- 在 [Release](https://github.com/silverling/xdwlan-login/releases) 页面下载 zip 文件并解压
 - 修改 `config.yaml`，填入学号和密码
-- 运行 `xdwlan-login.exe` 即可。（程序会在系统托盘后台运行）
+- 运行 `xdwlan-login.exe` 即可。（程序会在系统托盘后台运行，图标为小樱桃）
 - （可选）右键托盘图标，选择 “AutoStart”，即可开机自启
+
+### Linux 系统
+1. 方法一 ：一键脚本安装
+```bash
+curl -sSL https://github.com/silverling/xdwlan-login/raw/refs/heads/main/scripts/install.sh | bash
+```
+
+PS：该程序依赖 Chromium-based 浏览器，<ins>**安装脚本会自动帮你通过包管理器安装 Chromium**</ins>，如果手动从 [Release](https://github.com/silverling/xdwlan-login/releases) 处下载，则需要手动安装浏览器。在安装脚本中，该程序将被自动安装到 `/usr/local/bin/xdwlan-login`。
+
+2. 方法二：手动安装
+    - 下载并解压
+        ```
+        curl -sSL https://github.com/silverling/xdwlan-login/releases/latest/download/xdwlan-login-x86_64-unknown-linux-musl.tar.xz -O xdwlan-login.tar.xz
+        tar -xf xdwlan-login.tar.xz
+        ```
+
+3. 创建配置文件 `~/.config/xdwlan-login/config.yaml`，填入以下内容：
+    ```yaml
+    username: <学号>
+    password: <密码>
+    ```
+4. 运行程序。程序有两种运行模式：
+    - `xdwlan-login --oneshot`：登录校园网，然后退出。
+    - `xdwlan-login`：登录校园网，然后持续运行，定时监测网络状态，自动断网重连。
+
+
 
 备注：
 
@@ -30,7 +56,7 @@
 
 ### 编译使用
 
-编译程序：
+如果你想要测试该程序，或者其他原因，可以 Clone 本仓库并自行编译使用。
 
 ```bash
 git clone https://github.com/silverling/xdwlan-login.git
