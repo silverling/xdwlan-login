@@ -61,8 +61,8 @@ mkdir -p ~/.config/xdwlan-login
 
 # Create systemd service file
 echo "正在创建 systemd 服务文件..."
-SERVICE_FILE="/etc/systemd/system/xdwlan-login.service"
-cat > $SERVICE_FILE << EOF
+SERVICE_FILE="/etc/systemd/system/xdwlan-login@.service"
+cat << EOF | sudo tee $SERVICE_FILE > /dev/null
 [Unit]
 Description=xdwlan-login service
 After=network.target
@@ -70,12 +70,13 @@ After=network.target
 [Service]
 ExecStart=/usr/local/bin/xdwlan-login
 Restart=on-failure
-User=$(whoami)
-Environment=XDG_CONFIG_HOME=/home/$(whoami)/.config
+User=%I
+Environment=XDG_CONFIG_HOME=/home/%I/.config
 
 [Install]
 WantedBy=multi-user.target
 EOF
+systemctl daemon-reload
 
 cat << EOF 
 安装完成!
@@ -90,7 +91,7 @@ cat << EOF
 也可以不加 --oneshot 参数，让 xdwlan-login 以守护进程的方式运行，以实现自动登录和断网重连。
 如果你想开机自动登录，可以开启 xdwlan-login 服务:
 
-    sudo systemctl enable xdwlan-login.service
+    sudo systemctl enable --now xdwlan-login@$(whoami).service
 
 如果使用过程中遇到问题，请在 Issues 中反馈，谢谢!
 项目地址: $REPO
