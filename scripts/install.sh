@@ -70,8 +70,8 @@ After=network.target
 [Service]
 ExecStart=/usr/local/bin/xdwlan-login
 Restart=on-failure
-User=%I
-Environment=XDG_CONFIG_HOME=/home/%I/.config
+User=%i
+Environment=XDG_CONFIG_HOME=/home/%i/.config
 
 [Install]
 WantedBy=multi-user.target
