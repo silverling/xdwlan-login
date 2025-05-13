@@ -7,7 +7,6 @@ use std::thread;
 use xdwlan_login::config::load_config;
 use xdwlan_login::logger::setup_logger;
 use xdwlan_login::tasks::{LoginTask, Task};
-use xdwlan_login::utils;
 
 /// On Windows, the tray task and the login task run in parallel. The tray task is responsible for showing the tray icon and handling user interactions, while the login task is responsible for checking network connectivity and logging in.
 #[cfg(target_os = "windows")]
@@ -20,7 +19,7 @@ fn run() -> anyhow::Result<()> {
     let (tx_tray, rx_tray) = mpsc::channel();
 
     let config = load_config()?;
-    let login_task = LoginTask::new(config.username, config.password, config.domain);
+    let login_task = LoginTask::new(config.username, config.password);
     let login_task_handle = thread::spawn(move || login_task.run(tx_tray, rx_login));
 
     TrayTask::new().run(tx_login, rx_tray)?;
@@ -94,6 +93,7 @@ fn run() -> anyhow::Result<()> {
             signal_hook::flag::register(signal_hook::consts::SIGTERM, Arc::clone(&term))?;
 
             while !term.load(Ordering::Relaxed) {
+                log::debug!("Main task is running.");
                 thread::sleep(Duration::from_secs(1));
             }
             tx_login.send(AppEvent::Quit)?;
@@ -106,14 +106,6 @@ fn run() -> anyhow::Result<()> {
 
 fn main() {
     setup_logger();
-
-    match utils::add_program_folder_to_path() {
-        Ok(_) => {}
-        Err(err) => {
-            log::error!("{}", err);
-            std::process::exit(1);
-        }
-    }
 
     if let Err(e) = run() {
         log::error!("{}", e);

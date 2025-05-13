@@ -1,13 +1,9 @@
-use std::sync::mpsc::{Receiver, Sender};
 use std::time::Duration;
 
-use super::{AppEvent, Task};
+use headless_chrome::{Browser, LaunchOptionsBuilder};
+use std::sync::mpsc::{Receiver, Sender};
 
-const NODE_ENV: &str = if cfg!(debug_assertions) {
-    "development"
-} else {
-    "production"
-};
+use super::{AppEvent, Task};
 
 pub struct LoginTask {
     username: String,
@@ -61,32 +57,96 @@ impl LoginTask {
         Err(anyhow::anyhow!("Login url not found.").into())
     }
 
+    // In debug mode, we disable headless mode to see what's happening.
+    #[cfg(debug_assertions)]
+    fn create_browser(&self) -> anyhow::Result<Browser> {
+        let browser = Browser::new(LaunchOptionsBuilder::default().headless(false).build()?)?;
+
+        Ok(browser)
+    }
+
+    #[cfg(not(debug_assertions))]
+    fn create_browser(&self) -> anyhow::Result<Browser> {
+        use std::env::temp_dir;
+
+        let user_data_dir = temp_dir().join("xdwlan-login");
+
+        if !user_data_dir.exists() {
+            std::fs::create_dir(&user_data_dir)?;
+            log::info!("User data dir: {}", user_data_dir.display());
+        }
+
+        let browser = Browser::new(
+            LaunchOptionsBuilder::default()
+                .user_data_dir(Some(user_data_dir))
+                .build()?,
+        )?;
+
+        Ok(browser)
+    }
+
     /// Open a browser and login to the network.
     pub fn login(&self) -> anyhow::Result<()> {
         let url = self.get_login_url()?;
         log::info!("Got login url: {}", url);
 
-        let program_folder = crate::utils::get_program_folder();
+        // Create a browser and a new tab.
+        let browser = self.create_browser()?;
+        let tab = browser.new_tab()?;
 
-        #[cfg(target_os = "windows")]
-        let login_exe = program_folder.join("xdwlan-login-worker.exe");
+        // Navigate to the login page. Try at most 5 times.
+        for i in 0..5 {
+            match tab.navigate_to(&url) {
+                Ok(_) => {
+                    break;
+                }
+                Err(e) => {
+                    log::debug!("Navigate Error: {}", e);
 
-        #[cfg(target_os = "linux")]
-        let login_exe = program_folder.join("xdwlan-login-worker");
+                    if i == 4 {
+                        return Err(anyhow::anyhow!("Navigate failed for 5 times."));
+                    }
+                }
+            }
+        }
+        tab.wait_until_navigated()?;
 
-        let output = std::process::Command::new(login_exe)
-            .env("NODE_ENV", NODE_ENV)
-            .env("XDWLAN_LOGIN_URL", &url)
-            .env("XDWLAN_USERNAME", &self.username)
-            .env("XDWLAN_PASSWORD", &self.password)
-            .env("XDWLAN_DOMAIN", &self.domain)
-            .output()?;
+        // We check the title of the page to determine whether we are redirected to the login page.
+        let url = tab.get_url();
+        if url.contains("w.xidian.edu.cn") {
+            log::debug!("You are redirected to the login page {}", url);
 
-        if output.status.success() {
-            return Ok(());
+            // Sometimes, the page will show a dialog says "Net Error".
+            // Actually I don't know why, just reload the page to avoid it.
+            // Page has to be reload with cache, otherwise it will always complain "Net Error".
+            tab.reload(false, None)?;
+            tab.wait_until_navigated()?;
+
+            // We try to login here.
+            log::info!("Try to login...");
+            let body = tab.wait_for_element("body")?;
+            body.call_js_fn(
+                r#"function login() {
+                    if (document.querySelector('div.control > button.btn-confirm')) {
+                        document.querySelector('div.control > button.btn-confirm').click();
+                    }
+                    document.querySelector('#username').value = 'username_placeholder';
+                    document.querySelector('#password').value = 'password_placeholder';
+                    document.querySelector('#domain').value = 'domain_placeholder'; 
+                    document.querySelector('#login-account').click();
+                }"#
+                .replace("username_placeholder", &self.username)
+                .replace("password_placeholder", &self.password)
+                .replace("domain_placeholder", &self.domain)
+                .as_str(),
+                vec![],
+                false,
+            )?;
+        } else {
+            log::error!("Unknown login url: {}", url);
         }
 
-        anyhow::bail!("Login process exited with code {}", output.status);
+        Ok(())
     }
 }
 

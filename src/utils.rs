@@ -1,37 +1,19 @@
-use std::{env, path::PathBuf};
-
-pub fn get_program_path() -> PathBuf {
-    let program_path = env::current_exe().expect("Failed to get current executable path");
-    dunce::canonicalize(program_path).expect("Failed to canonicalize path")
-}
-
-pub fn get_program_folder() -> PathBuf {
-    get_program_path()
-        .parent()
-        .expect("The program has no parent folder.")
-        .to_path_buf()
-}
-
-pub fn add_program_folder_to_path() -> anyhow::Result<()> {
-    let mut path = env::var("PATH")?;
-    let program_folder = get_program_folder();
-    let program_folder = program_folder
+pub fn get_program_path() -> String {
+    std::env::current_exe()
+        .unwrap()
         .to_str()
-        .ok_or(anyhow::anyhow!("Failed to convert path to string"))?;
+        .unwrap()
+        .to_string()
+}
 
-    #[cfg(target_os = "linux")]
-    path.push(':');
-
-    #[cfg(target_os = "windows")]
-    path.push(';');
-
-    // Append the directory of the executable to the PATH
-    path.push_str(program_folder);
-    // Set the new PATH
-    env::set_var("PATH", path);
-
-    log::debug!("Executable directory added to PATH: {}", program_folder);
-    Ok(())
+pub fn get_program_folder() -> String {
+    std::env::current_exe()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .to_string()
 }
 
 #[cfg(target_os = "windows")]
@@ -50,7 +32,7 @@ pub fn is_autostart() -> bool {
         return false;
     }
 
-    if path.unwrap() == get_program_path().to_str().unwrap() {
+    if path.unwrap() == get_program_path() {
         return true;
     } else {
         return false;
@@ -66,7 +48,7 @@ pub fn toggle_autostart() -> anyhow::Result<bool> {
         reg.delete_value(REG_KEY_NAME)?;
         log::debug!("Disabled autostart.")
     } else {
-        reg.set_value(REG_KEY_NAME, &get_program_path().to_str().unwrap())?;
+        reg.set_value(REG_KEY_NAME, &get_program_path())?;
         log::debug!("Enabled autostart.")
     }
 
