@@ -1,0 +1,64 @@
+name: build-test
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - "scripts/*"
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Install Deno dependencies
+        run: deno install
+
+      - name: Build Deno application
+        run: deno task bundle && deno task compile:linux
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          target: x86_64-unknown-linux-gnu
+
+      - name: Build Rust application
+        run: cargo build --release --target x86_64-unknown-linux-gnu
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Install Deno dependencies
+        run: deno install
+
+      - name: Build Deno application
+        run: deno task bundle && deno task compile:windows
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          target: x86_64-pc-windows-msvc
+
+      - name: Build Rust application
+        run: cargo build --release --target x86_64-pc-windows-msvc
