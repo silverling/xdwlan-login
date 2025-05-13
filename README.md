@@ -4,9 +4,7 @@
 
 ## 工作原理
 
-该程序通过[调用浏览器模拟用户登录行为](https://github.com/rust-headless-chrome/rust-headless-chrome)，理论上说，只要你的设备可以打开浏览器访问登录界面，就可以使用本程序来自动登录。
-
-同时，**这种方式也要求你的电脑上有一个浏览器**（Chrome、Edge 等 Chromium 系列浏览器）。
+该程序通过[模拟浏览器用户登录行为](https://github.com/silverling/xdwlan-login/blob/main/src/js/login.ts)，理论上说，只要你的设备可以访问登录界面，就可以使用本程序来自动登录。
 
 认证原理：
 
@@ -30,29 +28,29 @@
 curl -sSL https://github.com/silverling/xdwlan-login/raw/refs/heads/main/scripts/install.sh | bash
 ```
 
-PS：该程序依赖 Chromium-based 浏览器，<ins>**安装脚本会自动帮你通过包管理器安装 Chromium**</ins>，如果手动从 [Release](https://github.com/silverling/xdwlan-login/releases) 处下载，则需要手动安装浏览器。在安装脚本中，该程序将被自动安装到 `/usr/local/bin/xdwlan-login`。
+PS：在安装脚本中，该程序将被自动安装到 `/opt/xdwlan-login` 目录下，并软链接到 `/usr/local/bin/xdwlan-login`。
 
-PS：如果你的网络无法连接到 GitHub 导致下载失败，也可以通过其他方式手动下载 [`install.sh`](https://github.com/silverling/xdwlan-login/raw/refs/heads/main/scripts/install.sh) 和 [`xdwlan-login-x86_64-unknown-linux-musl.tar.xz`](https://github.com/silverling/xdwlan-login/releases/latest/download/xdwlan-login-x86_64-unknown-linux-musl.tar.xz) 到同一目录，然后在该目录下执行
+PS：如果你的网络无法连接到 GitHub 导致下载失败，也可以通过其他方式手动下载 [`install.sh`](https://github.com/silverling/xdwlan-login/raw/refs/heads/main/scripts/install.sh) 和 [`xdwlan-login-x86_64-unknown-linux-gnu.tar.xz`](https://github.com/silverling/xdwlan-login/releases/latest/download/xdwlan-login-x86_64-unknown-linux-gnu.tar.xz) 到同一目录，然后在该目录下执行
 ```bash
-bash ./install.sh xdwlan-login-x86_64-unknown-linux-musl.tar.xz
+bash ./install.sh xdwlan-login-x86_64-unknown-linux-gnu.tar.xz
 ```
 
 2. 方法二：手动安装
     - 下载并解压
         ```bash
-        curl -sSL https://github.com/silverling/xdwlan-login/releases/latest/download/xdwlan-login-x86_64-unknown-linux-musl.tar.xz -O xdwlan-login.tar.xz
+        curl -sSL https://github.com/silverling/xdwlan-login/releases/latest/download/xdwlan-login-x86_64-unknown-linux-gnu.tar.xz -O xdwlan-login.tar.xz
         tar -xf xdwlan-login.tar.xz
         ```
 
 3. 创建配置文件 `~/.config/xdwlan-login/config.yaml`，填入以下内容：
     ```yaml
-    username: <学号>
-    password: <密码>
+    username: "学号"
+    password: "密码"
     ```
 4. 运行程序。程序有三种运行模式：
     - `xdwlan-login --oneshot`：登录校园网，然后退出。
     - `xdwlan-login`：登录校园网，然后持续运行，定时监测网络状态，自动断网重连。
-    - `sudo systemctl enable --now xdwlan-login@$(whoami).service`：开机自启，然后持续运行，定时监测网络状态，自动断网重连。
+    - `sudo systemctl enable --now xdwlan-login.service`：开机自启，然后持续运行，定时监测网络状态，自动断网重连。
 
 
 
@@ -67,14 +65,27 @@ bash ./install.sh xdwlan-login-x86_64-unknown-linux-musl.tar.xz
 ```bash
 git clone https://github.com/silverling/xdwlan-login.git
 cd xdwlan-login
-cargo build --release
+
+# Windows
+cargo build --release --target x86_64-pc-windows-msvc
+deno install
+deno task bundle
+deno task compile:windows
+cp .\build\xdwlan-login-worker.exe .\target\x86_64-pc-windows-msvc\release\
+
+# Linux
+cargo build --release --target x86_64-unknown-linux-gnu
+deno install
+deno task bundle
+deno task compile:linux
+cp .\build\xdwlan-login-worker .\target\x86_64-unknown-linux-gnu\release\
 ```
 
 在程序同目录创建 `config.yaml` 文件，写入登录信息：
 
 ```yaml
-username: 23000000000
-password: xxxxxx
+username: "23000000000"
+password: "xxxxxxxxxxx"
 ```
 
-运行程序即可。（程序会在系统托盘后台运行）
+运行程序即可。（Windows 版本程序会在系统托盘后台运行）
