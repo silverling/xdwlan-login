@@ -1,0 +1,15 @@
+{
+  "tasks": {
+    "dev": "deno run --env-file=.env --allow-env --allow-net src/js/login.ts",
+    "bundle": "esbuild --bundle --outfile=build/login.cjs --minify --platform=node src/js/login.ts",
+    "compile:linux": "deno compile --no-lock --no-check --no-npm --no-remote --unstable-node-globals --allow-env --allow-net --output build/xdwlan-login-worker build/login.cjs",
+    "compile:windows": "deno compile --no-lock --no-check --no-npm --no-remote --unstable-node-globals --allow-env --allow-net --output build/xdwlan-login-worker --no-terminal build/login.cjs"
+  },
+  "imports": {
+    "@std/assert": "jsr:@std/assert@1",
+    "happy-dom": "npm:happy-dom@^17.4.7"
+  },
+  "fmt": {
+    "lineWidth": 120
+  }
+}

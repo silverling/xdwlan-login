@@ -1,21 +1,15 @@
 {
   "name": "xdwlan-login-worker",
-  "description": "",
+  "description": "A deno program that simulates browser for auto login",
   "type": "module",
   "private": "true",
-  "scripts": {
-    "fmt": "bun x biome format src/js/",
-    "build:debug": "bun build ./src/js/login.ts --compile --outfile target/debug/xdwlan-login-worker",
-    "build:linux:release": "bun build ./src/js/login.ts --compile --minify --outfile target/x86_64-unknown-linux-gnu/release/xdwlan-login-worker",
-    "build:windows:release": "bun build ./src/js/login.ts --compile --minify --outfile target/x86_64-pc-windows-msvc/release/xdwlan-login-worker"
-  },
   "author": "Silver Ling",
   "license": "MIT",
   "dependencies": {
     "happy-dom": "^17.4.4"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@types/node": "^22.15.3"
+    "@types/node": "^22.15.17",
+    "esbuild": "^0.25.4"
   }
 }
