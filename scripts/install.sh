@@ -4,7 +4,7 @@ set -eu
 printf '\n'
 
 REPO="https://github.com/silverling/xdwlan-login"
-DOWNLOAD_URL="$REPO/releases/latest/download/xdwlan-login-x86_64-unknown-linux-musl.tar.xz"
+DOWNLOAD_URL="$REPO/releases/latest/download/xdwlan-login-x86_64-unknown-linux-gnu.tar.xz"
 INSTALLER_DIR=/tmp/xdwlan-login-installer
 ARGC="$#"
 ARGS=("$@")
@@ -40,25 +40,6 @@ completed() {
 
 has() {
     command -v "$1" 1>/dev/null 2>&1
-}
-
-# Check and install headless chromium browser if missing
-check_chromium() {
-    if ! has chromium-browser; then
-        info "正在安装依赖..."
-        if [[ $distro == "ubuntu" ]]; then
-            sudo apt-get update
-            sudo apt-get install -y chromium-browser
-        elif [[ $distro == "debian" ]]; then
-            sudo apt-get update
-            sudo apt-get install -y chromium-browser
-        elif [[ $distro == "arch" ]]; then
-            sudo pacman -Sy --noconfirm chromium
-        else
-            error "请手动通过包管理器安装 chromium 或基于此的浏览器"
-            exit 1
-        fi
-    fi
 }
 
 download() {
@@ -116,13 +97,15 @@ download() {
 install() {
     info "正在安装..."
     tar -xf $INSTALLER_DIR/xdwlan-login.tar.xz -C $INSTALLER_DIR
-    sudo cp $INSTALLER_DIR/xdwlan-login /usr/local/bin
+    [ -d "/opt/xdwlan-login" ] && sudo rm -r /opt/xdwlan-login
+    sudo cp -r $INSTALLER_DIR/xdwlan-login-x86_64-unknown-linux-gnu /opt/xdwlan-login
+    sudo ln -sf /opt/xdwlan-login/xdwlan-login /usr/local/bin/xdwlan-login
     sudo chmod +x /usr/local/bin/xdwlan-login
     mkdir -p ~/.config/xdwlan-login
 
     # Create systemd service file
     info "正在创建 systemd 服务文件..."
-    SERVICE_FILE="/etc/systemd/system/xdwlan-login@.service"
+    SERVICE_FILE="/etc/systemd/system/xdwlan-login.service"
     cat <<EOF | sudo tee $SERVICE_FILE >/dev/null
 [Unit]
 Description=xdwlan-login service
@@ -131,8 +114,6 @@ After=network.target
 [Service]
 ExecStart=/usr/local/bin/xdwlan-login
 Restart=on-failure
-User=%i
-Environment=XDG_CONFIG_HOME=/home/%i/.config
 
 [Install]
 WantedBy=multi-user.target
@@ -145,17 +126,13 @@ notice() {
     completed "安装完成!"
     cat <<EOF
 
-请新建文件 ~/.config/xdwlan-login/config.yaml，并填入以下内容:
-
-    username: <学号>
-    password: <密码>
-
+请修改文件 /opt/xdwlan-login/config.yaml，并填入学号和密码。
 然后运行 xdwlan-login --oneshot 即可登录校园网。
 
 也可以不加 --oneshot 参数，让 xdwlan-login 以守护进程的方式运行，以实现自动登录和断网重连。
 如果你想开机自动登录，可以开启 xdwlan-login 服务:
 
-    sudo systemctl enable --now xdwlan-login@$(whoami).service
+    sudo systemctl enable --now xdwlan-login.service
 
 如果使用过程中遇到问题，请在 Issues 中反馈，谢谢!
 项目地址: $REPO
@@ -163,7 +140,6 @@ notice() {
 EOF
 }
 
-check_chromium
 download
 install
 notice
