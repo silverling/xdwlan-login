@@ -1,19 +1,15 @@
-pub fn get_program_path() -> String {
-    std::env::current_exe()
-        .unwrap()
-        .to_str()
-        .unwrap()
-        .to_string()
+use std::{env, path::PathBuf};
+
+pub fn get_program_path() -> PathBuf {
+    let program_path = env::current_exe().expect("Failed to get current executable path");
+    dunce::canonicalize(program_path).expect("Failed to canonicalize path")
 }
 
-pub fn get_program_folder() -> String {
-    std::env::current_exe()
-        .unwrap()
+pub fn get_program_folder() -> PathBuf {
+    get_program_path()
         .parent()
-        .unwrap()
-        .to_str()
-        .unwrap()
-        .to_string()
+        .expect("The program has no parent folder.")
+        .to_path_buf()
 }
 
 #[cfg(target_os = "windows")]

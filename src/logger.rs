@@ -1,22 +1,26 @@
 use std::io::Write;
 
+use env_logger::fmt::Formatter;
+
 const TIME_FORMAT: &str = "%Y-%m-%dT%H:%M:%S%.3f%:z";
+
+fn logger_formatter(buf: &mut Formatter, record: &log::Record<'_>) -> std::io::Result<()> {
+    writeln!(
+        buf,
+        "[{} {} {}] {}",
+        chrono::Local::now().format(TIME_FORMAT),
+        record.level(),
+        record.target(),
+        record.args()
+    )
+}
 
 #[cfg(debug_assertions)] // Debug mode.
 pub fn setup_logger() {
     use log::LevelFilter;
 
     env_logger::Builder::from_default_env()
-        .format(|buf, record| {
-            writeln!(
-                buf,
-                "[{} {} {}] {}",
-                chrono::Local::now().format(TIME_FORMAT),
-                record.level(),
-                record.target(),
-                record.args()
-            )
-        })
+        .format(logger_formatter)
         .filter(None, LevelFilter::Debug)
         .init();
 }
@@ -25,20 +29,11 @@ pub fn setup_logger() {
 pub fn setup_logger() {
     // Allow logger to be configured via an environment variable.
     let env = env_logger::Env::default()
-        .default_filter_or("info,headless_chrome=error")
+        .default_filter_or("info")
         .default_write_style_or("always");
 
     env_logger::Builder::from_env(env)
-        .format(|buf, record| {
-            writeln!(
-                buf,
-                "[{} {} {}] {}",
-                chrono::Local::now().format(TIME_FORMAT),
-                record.level(),
-                record.target(),
-                record.args()
-            )
-        })
+        .format(logger_formatter)
         .init();
 }
 
@@ -47,33 +42,24 @@ pub fn setup_logger() {
     use crate::utils::get_program_folder;
 
     let program_folder = get_program_folder();
-    let log_file_path = format!("{}/log.txt", program_folder);
+    let log_file_path = program_folder.join("log.txt");
 
     let target = Box::new(
         std::fs::OpenOptions::new()
             .write(true)
             .create(true)
             .append(true)
-            .open(log_file_path.as_str())
+            .open(log_file_path.to_str().unwrap())
             .expect("Failed to open log file."),
     );
 
     // Allow logger to be configured via an environment variable.
     let env = env_logger::Env::default()
-        .default_filter_or("info,headless_chrome=error")
+        .default_filter_or("info")
         .default_write_style_or("always");
 
     env_logger::Builder::from_env(env)
-        .format(|buf, record| {
-            writeln!(
-                buf,
-                "[{} {} {}] {}",
-                chrono::Local::now().format(TIME_FORMAT),
-                record.level(),
-                record.target(),
-                record.args()
-            )
-        })
+        .format(logger_formatter)
         .target(env_logger::Target::Pipe(target))
         .init();
 }
