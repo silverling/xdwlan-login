@@ -35,4 +35,4 @@ username: "23xxxxxxxxx" # 学号
 password: "***********" # 密码
 domain: "" # 留空表示默认，中国移动填 "@yd"，中国联通填 "@lt"，中国电信填 "@dx"
 "@ | Out-File -FilePath "$archive_dir\config.yaml" -Encoding utf8
-Compress-Archive -Path $archive_dir\* -DestinationPath $archive_name -Force
+Compress-Archive -Path $archive_dir -DestinationPath $archive_name -Force
