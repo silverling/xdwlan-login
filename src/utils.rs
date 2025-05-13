@@ -28,7 +28,7 @@ pub fn is_autostart() -> bool {
         return false;
     }
 
-    if path.unwrap() == get_program_path() {
+    if path.unwrap() == get_program_path().to_str().unwrap() {
         return true;
     } else {
         return false;
@@ -44,7 +44,7 @@ pub fn toggle_autostart() -> anyhow::Result<bool> {
         reg.delete_value(REG_KEY_NAME)?;
         log::debug!("Disabled autostart.")
     } else {
-        reg.set_value(REG_KEY_NAME, &get_program_path())?;
+        reg.set_value(REG_KEY_NAME, &get_program_path().to_str().unwrap())?;
         log::debug!("Enabled autostart.")
     }
 
