@@ -36,6 +36,20 @@ jobs:
       - name: Build Rust application
         run: cargo build --release --target x86_64-unknown-linux-gnu
 
+      - name: Create dist
+        run: |
+          mkdir -p dist/x86_64-unknown-linux-gnu
+          cp build/xdwlan-login-worker dist/x86_64-unknown-linux-gnu/
+          cp target/x86_64-unknown-linux-gnu/release/xdwlan-login dist/x86_64-unknown-linux-gnu/
+          cp config.example.yaml dist/x86_64-unknown-linux-gnu/config.yaml
+          tar cf - -C dist x86_64-unknown-linux-gnu | xz -z > dist/x86_64-unknown-linux-gnu.tar.xz
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: x86_64-unknown-linux-gnu.tar.xz
+          path: dist/x86_64-unknown-linux-gnu.tar.xz
+
   build-windows:
     runs-on: windows-latest
     steps:
@@ -62,3 +76,17 @@ jobs:
 
       - name: Build Rust application
         run: cargo build --release --target x86_64-pc-windows-msvc
+
+      - name: Create dist
+        run: |
+          New-Item -ItemType Directory -Path dist/x86_64-pc-windows-msvc
+          Copy-Item build/xdwlan-login-worker.exe -Destination dist/x86_64-pc-windows-msvc/
+          Copy-Item target/x86_64-pc-windows-msvc/release/xdwlan-login.exe -Destination dist/x86_64-pc-windows-msvc/
+          Copy-Item config.example.yaml -Destination dist/x86_64-pc-windows-msvc/config.yaml
+          Compress-Archive -Path dist/x86_64-pc-windows-msvc -DestinationPath dist/x86_64-pc-windows-msvc.zip
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: x86_64-pc-windows-msvc.zip
+          path: dist/x86_64-pc-windows-msvc.zip
