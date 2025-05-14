@@ -5,9 +5,9 @@ on:
     branches:
       - main
     paths-ignore:
-      - ".github/*"
-      - ".vscode/*"
-      - "scripts/*"
+      - ".github"
+      - ".vscode"
+      - "scripts"
       - "README.md"
       - ".env.example"
       - ".gitignore"
