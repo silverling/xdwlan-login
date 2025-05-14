@@ -13,8 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TARGET: "x86_64-unknown-linux-gnu"
-      DIST_NAME: "xdwlan-login-$TARGET"
-      DIST_DIR: "dist/$DIST_NAME"
+      DIST_NAME: "xdwlan-login-x86_64-unknown-linux-gnu"
+      DIST_DIR: "dist/xdwlan-login-x86_64-unknown-linux-gnu"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -58,8 +58,8 @@ jobs:
     runs-on: windows-latest
     env:
       TARGET: "x86_64-pc-windows-msvc"
-      DIST_NAME: "xdwlan-login-$env:TARGET"
-      DIST_DIR: "dist/$env:DIST_NAME"
+      DIST_NAME: "xdwlan-login-x86_64-pc-windows-msvc"
+      DIST_DIR: "dist/xdwlan-login-x86_64-pc-windows-msvc"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
