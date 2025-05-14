@@ -35,22 +35,22 @@ jobs:
         with:
           toolchain: stable
           override: true
-          target: ${TARGET}
+          target: "${TARGET}"
 
       - name: Build Rust application
-        run: cargo build --release --target ${TARGET}
+        run: cargo build --release --target "${TARGET}"
 
       - name: Create dist
         run: |
-          mkdir -p ${DIST_DIR}
-          cp build/xdwlan-login-worker ${DIST_DIR}/
-          cp target/${TARGET}/release/xdwlan-login ${DIST_DIR}/
-          cp config.example.yaml ${DIST_DIR}/config.yaml
+          mkdir -p "${DIST_DIR}"
+          cp build/xdwlan-login-worker "${DIST_DIR}/"
+          cp "target/${TARGET}/release/xdwlan-login" "${DIST_DIR}/"
+          cp config.example.yaml "${DIST_DIR}/config.yaml"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${DIST_NAME}
+          name: "${DIST_NAME}"
           path: dist/**/*
           retention-days: 2
 
@@ -80,21 +80,21 @@ jobs:
         with:
           toolchain: stable
           override: true
-          target: ${TARGET}
+          target: "${TARGET}"
 
       - name: Build Rust application
-        run: cargo build --release --target ${TARGET}
+        run: cargo build --release --target "${TARGET}"
 
       - name: Create dist
         run: |
-          New-Item -ItemType Directory -Path ${DIST_DIR}
-          Copy-Item build/xdwlan-login-worker.exe -Destination ${DIST_DIR}/
-          Copy-Item target/${TARGET}/release/xdwlan-login.exe -Destination ${DIST_DIR}/
-          Copy-Item config.example.yaml -Destination ${DIST_DIR}/config.yaml
+          New-Item -ItemType Directory -Path "${DIST_DIR}"
+          Copy-Item build/xdwlan-login-worker.exe -Destination "${DIST_DIR}/"
+          Copy-Item "target/${TARGET}/release/xdwlan-login.exe" -Destination "${DIST_DIR}/"
+          Copy-Item config.example.yaml -Destination "${DIST_DIR}/config.yaml"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${DIST_NAME}
+          name: "${DIST_NAME}"
           path: dist/**/*
           retention-days: 2
