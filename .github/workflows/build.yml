@@ -1,4 +1,4 @@
-name: build-test
+name: build
 
 on:
   pull_request:
@@ -12,14 +12,13 @@ on:
       - ".env.example"
       - ".gitignore"
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   build-linux:
     runs-on: ubuntu-latest
     env:
       TARGET: "x86_64-unknown-linux-gnu"
-      DIST_NAME: "xdwlan-login-x86_64-unknown-linux-gnu"
-      DIST_DIR: "dist/xdwlan-login-x86_64-unknown-linux-gnu"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -47,24 +46,22 @@ jobs:
 
       - name: Create dist
         run: |
-          mkdir -p "$DIST_DIR"
-          cp build/xdwlan-login-worker "$DIST_DIR/"
-          cp target/$TARGET/release/xdwlan-login "$DIST_DIR"
-          cp config.example.yaml "$DIST_DIR/config.yaml"
+          mkdir -p dist
+          cp build/xdwlan-login-worker dist
+          cp target/$TARGET/release/xdwlan-login dist
+          cp config.example.yaml dist/config.yaml
 
-      - name: Upload artifacts
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.DIST_NAME }}
-          path: dist/**/*
+          name: linux-artifact
+          path: dist
           retention-days: 2
 
   build-windows:
     runs-on: windows-latest
     env:
       TARGET: "x86_64-pc-windows-msvc"
-      DIST_NAME: "xdwlan-login-x86_64-pc-windows-msvc"
-      DIST_DIR: "dist/xdwlan-login-x86_64-pc-windows-msvc"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -92,14 +89,14 @@ jobs:
 
       - name: Create dist
         run: |
-          New-Item -ItemType Directory -Path "$env:DIST_DIR"
-          Copy-Item build/xdwlan-login-worker.exe -Destination "$env:DIST_DIR/"
-          Copy-Item target/$env:TARGET/release/xdwlan-login.exe -Destination "$env:DIST_DIR/"
-          Copy-Item config.example.yaml -Destination "$env:DIST_DIR/config.yaml"
+          New-Item -ItemType Directory -Path dist
+          Copy-Item build/xdwlan-login-worker.exe -Destination dist
+          Copy-Item target/$env:TARGET/release/xdwlan-login.exe -Destination dist
+          Copy-Item config.example.yaml -Destination dist/config.yaml
 
-      - name: Upload artifacts
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.DIST_NAME }}
-          path: dist/**/*
+          name: windows-artifact
+          path: dist
           retention-days: 2
