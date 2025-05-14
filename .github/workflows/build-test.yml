@@ -5,7 +5,12 @@ on:
     branches:
       - main
     paths-ignore:
+      - ".github/*"
+      - ".vscode/*"
       - "scripts/*"
+      - "README.md"
+      - ".env.example"
+      - ".gitignore"
   workflow_dispatch:
 
 jobs:
