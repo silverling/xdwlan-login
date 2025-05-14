@@ -11,6 +11,10 @@ on:
 jobs:
   build-linux:
     runs-on: ubuntu-latest
+    env:
+      TARGET: "x86_64-unknown-linux-gnu"
+      DIST_NAME: "xdwlan-login-${TARGET}"
+      DIST_DIR: "dist/${DIST_NAME}"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -31,27 +35,31 @@ jobs:
         with:
           toolchain: stable
           override: true
-          target: x86_64-unknown-linux-gnu
+          target: ${TARGET}
 
       - name: Build Rust application
-        run: cargo build --release --target x86_64-unknown-linux-gnu
+        run: cargo build --release --target ${TARGET}
 
       - name: Create dist
         run: |
-          mkdir -p dist/x86_64-unknown-linux-gnu
-          cp build/xdwlan-login-worker dist/x86_64-unknown-linux-gnu/
-          cp target/x86_64-unknown-linux-gnu/release/xdwlan-login dist/x86_64-unknown-linux-gnu/
-          cp config.example.yaml dist/x86_64-unknown-linux-gnu/config.yaml
-          tar cf - -C dist x86_64-unknown-linux-gnu | xz -z > dist/x86_64-unknown-linux-gnu.tar.xz
+          mkdir -p ${DIST_DIR}
+          cp build/xdwlan-login-worker ${DIST_DIR}/
+          cp target/${TARGET}/release/xdwlan-login ${DIST_DIR}/
+          cp config.example.yaml ${DIST_DIR}/config.yaml
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: x86_64-unknown-linux-gnu.tar.xz
-          path: dist/x86_64-unknown-linux-gnu.tar.xz
+          name: ${DIST_NAME}
+          path: dist/**/*
+          retention-days: 2
 
   build-windows:
     runs-on: windows-latest
+    env:
+      TARGET: "x86_64-pc-windows-msvc"
+      DIST_NAME: "xdwlan-login-${TARGET}"
+      DIST_DIR: "dist/${DIST_NAME}"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -72,21 +80,21 @@ jobs:
         with:
           toolchain: stable
           override: true
-          target: x86_64-pc-windows-msvc
+          target: ${TARGET}
 
       - name: Build Rust application
-        run: cargo build --release --target x86_64-pc-windows-msvc
+        run: cargo build --release --target ${TARGET}
 
       - name: Create dist
         run: |
-          New-Item -ItemType Directory -Path dist/x86_64-pc-windows-msvc
-          Copy-Item build/xdwlan-login-worker.exe -Destination dist/x86_64-pc-windows-msvc/
-          Copy-Item target/x86_64-pc-windows-msvc/release/xdwlan-login.exe -Destination dist/x86_64-pc-windows-msvc/
-          Copy-Item config.example.yaml -Destination dist/x86_64-pc-windows-msvc/config.yaml
-          Compress-Archive -Path dist/x86_64-pc-windows-msvc -DestinationPath dist/x86_64-pc-windows-msvc.zip
+          New-Item -ItemType Directory -Path ${DIST_DIR}
+          Copy-Item build/xdwlan-login-worker.exe -Destination ${DIST_DIR}/
+          Copy-Item target/${TARGET}/release/xdwlan-login.exe -Destination ${DIST_DIR}/
+          Copy-Item config.example.yaml -Destination ${DIST_DIR}/config.yaml
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: x86_64-pc-windows-msvc.zip
-          path: dist/x86_64-pc-windows-msvc.zip
+          name: ${DIST_NAME}
+          path: dist/**/*
+          retention-days: 2
