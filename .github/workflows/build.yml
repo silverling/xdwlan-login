@@ -45,17 +45,20 @@ jobs:
         run: cargo build --release --target $TARGET
 
       - name: Create dist
+        env:
+          DIST_DIR: "dist/xdwlan-login-x86_64-unknown-linux-gnu"
         run: |
-          mkdir -p dist
-          cp build/xdwlan-login-worker dist
-          cp target/$TARGET/release/xdwlan-login dist
-          cp config.example.yaml dist/config.yaml
+          mkdir -p $DIST_DIR
+          cp build/xdwlan-login-worker $DIST_DIR
+          cp target/$TARGET/release/xdwlan-login $DIST_DIR
+          cp config.example.yaml $DIST_DIR/config.yaml
+          tar cf - -C dist xdwlan-login-x86_64-unknown-linux-gnu | xz > dist/xdwlan-login-x86_64-unknown-linux-gnu.tar.xz
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: linux-artifact
-          path: dist
+          path: dist/xdwlan-login-x86_64-unknown-linux-gnu.tar.xz
           retention-days: 2
 
   build-windows:
@@ -88,15 +91,18 @@ jobs:
         run: cargo build --release --target $env:TARGET
 
       - name: Create dist
+        env:
+          DIST_DIR: "dist/xdwlan-login-x86_64-pc-windows-msvc"
         run: |
-          New-Item -ItemType Directory -Path dist
-          Copy-Item build/xdwlan-login-worker.exe -Destination dist
-          Copy-Item target/$env:TARGET/release/xdwlan-login.exe -Destination dist
-          Copy-Item config.example.yaml -Destination dist/config.yaml
+          New-Item -ItemType Directory -Path $env:DIST_DIR
+          Copy-Item build/xdwlan-login-worker.exe -Destination $env:DIST_DIR
+          Copy-Item target/$env:TARGET/release/xdwlan-login.exe -Destination $env:DIST_DIR
+          Copy-Item config.example.yaml -Destination $env:DIST_DIR/config.yaml
+          Compress-Archive -Path $env:DIST_DIR -DestinationPath dist/xdwlan-login-x86_64-pc-windows-msvc.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-artifact
-          path: dist
+          path: dist/xdwlan-login-x86_64-pc-windows-msvc.zip
           retention-days: 2

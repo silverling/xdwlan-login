@@ -26,20 +26,8 @@ jobs:
       - name: Download linux artifact
         uses: actions/download-artifact@v4
         with:
-          name: linux-artifact
-          path: dist/xdwlan-login-x86_64-unknown-linux-gnu
-
-      - name: Download windows artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: windows-artifact
-          path: dist/xdwlan-login-x86_64-pc-windows-msvc
-
-      - name: Create archive
-        run: |
-          cd dist
-          tar cf - xdwlan-login-x86_64-unknown-linux-gnu | xz > xdwlan-login-x86_64-unknown-linux-gnu.tar.xz
-          zip -r xdwlan-login-x86_64-pc-windows-msvc.zip xdwlan-login-x86_64-pc-windows-msvc
+          path: dist
+          merge-multiple: true
 
       - name: Set node
         uses: actions/setup-node@v4
