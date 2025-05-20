@@ -9,7 +9,6 @@ on:
       - ".vscode"
       - "scripts"
       - "README.md"
-      - "README_EN.md"
       - ".env.example"
       - ".gitignore"
   workflow_dispatch:

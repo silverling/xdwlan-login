@@ -1,11 +1,5 @@
 # Xidian WLAN Login
 
-<h4>
-<a href="README.md">🇨🇳 中文</a>
-<span> | </span>
-<a href="README_EN.md">🇬🇧 English</a>
-</h4>
-
 西电校园网登录助手，通过 Web Portal 认证方式。可以运行在后台保持网络连接。支持自动重连、开机自启。
 
 ## 工作原理
