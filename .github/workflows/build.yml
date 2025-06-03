@@ -16,7 +16,7 @@ on:
 
 jobs:
   build-linux:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04 # Build on slightly old machine for better GLIBC compatibility.
     env:
       TARGET: "x86_64-unknown-linux-gnu"
     steps:
