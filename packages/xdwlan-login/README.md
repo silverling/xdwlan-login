@@ -1,15 +1,3 @@
-# xdwlan-login
+# Xidian WLAN Login | 西电校园网登录助手
 
-To install dependencies:
-
-```bash
-bun install
-```
-
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.2.20. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+该目录包含 Xidian WLAN Login 的核心实现，主要是通过 JSDOM 模拟浏览器用户输入与点击，完成登录操作。

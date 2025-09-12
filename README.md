@@ -1,6 +1,9 @@
-# Xidian WLAN Login
+<h1>
+  Xidian WLAN Login | 西电校园网登录助手
+  <img src="resources/icons/avocado.png" alt="Logo" height="48" style="vertical-align: middle; margin-left: 8px;" />
+</h1>
 
-西电校园网登录助手，通过 Web Portal 认证方式。可以运行在后台保持网络连接。支持自动重连、开机自启。
+通过 Web Portal 认证方式。可以运行在后台保持网络连接。支持自动重连、开机自启。
 
 ## 使用说明
 
@@ -32,18 +35,19 @@ bash ./install.sh xdwlan-login-x86_64-unknown-linux-gnu.tar.xz
 
 <details>
 <summary>方法二：手动安装</summary>
-1. 下载并解压
+下载并解压
   
 ```bash
 curl -sSL https://github.com/silverling/xdwlan-login/releases/latest/download/xdwlan-login-x86_64-unknown-linux-gnu.tar.xz -O xdwlan-login.tar.xz
 tar -xf xdwlan-login.tar.xz
 ```
 
-2. 在程序同目录下创建配置文件 `config.yaml`，填入以下内容：
-   ```yaml
-   username: "学号"
-   password: "密码"
-   ```
+在程序同目录下创建配置文件 `config.yaml`，填入以下内容：
+
+```yaml
+username: "学号"
+password: "密码"
+```
 
 </details>
 
