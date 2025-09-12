@@ -1,0 +1,58 @@
+import { sleep } from "bun";
+import { logger } from "./logger";
+import { isOnline, login } from "./login";
+
+/**
+ *  Login once (if failed, retry up to 5 times)
+ * @returns true if online after login, false otherwise
+ */
+export async function oneshot(): Promise<boolean> {
+  logger.info("Checking network status.");
+  if (await isOnline()) {
+    logger.info("Already online.");
+    return true;
+  }
+
+  // Try to login in max 5 attempts
+  logger.info("Offline detected. Try to login.");
+  for (let i = 1; i <= 5; ++i) {
+    await login();
+
+    if (await isOnline()) {
+      logger.info("Login successfully.");
+      return true;
+    }
+
+    logger.info(`Login failed. ${5 - i} attempts remaining.`);
+    await sleep(1000);
+  }
+
+  return await isOnline();
+}
+
+/**
+ * Daemon mode: check network status every 60 seconds, if offline, try to login until success.
+ * Never returns.
+ */
+export async function daemon(): Promise<never> {
+  while (true) {
+    if (await isOnline()) {
+      // Check network status every 60 seconds
+      await sleep(60_000);
+      continue;
+    }
+
+    logger.info("Offline detected. Try to login.");
+    while (true) {
+      await login();
+
+      if (await isOnline()) {
+        logger.info("Login successfully.");
+        break;
+      } else {
+        logger.info("Login failed. Retry in 3 seconds.");
+        await sleep(3000);
+      }
+    }
+  }
+}

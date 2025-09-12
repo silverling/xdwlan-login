@@ -25,41 +25,23 @@ on:
 jobs:
   build-linux:
     runs-on: ubuntu-22.04 # Build on slightly old machine for better GLIBC compatibility.
-    env:
-      TARGET: "x86_64-unknown-linux-gnu"
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
 
-      - name: Set up Deno
-        uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.x
+      - name: Install bun dependencies
+        run: bun install
 
-      - name: Install Deno dependencies
-        run: deno install
-
-      - name: Build Deno application
-        run: deno task bundle && deno task compile:linux
-
-      - name: Set up Rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-          target: ${{ env.TARGET }}
-
-      - name: Build Rust application
-        run: cargo build --release --target $TARGET
+      - name: Build application
+        run: bun run -F xdwlan-login build:linux
 
       - name: Create dist
         env:
           DIST_DIR: "dist/xdwlan-login-x86_64-unknown-linux-gnu"
         run: |
           mkdir -p $DIST_DIR
-          cp build/xdwlan-login-worker $DIST_DIR
-          cp target/$TARGET/release/xdwlan-login $DIST_DIR
           cp config.example.yaml $DIST_DIR/config.yaml
+          cp packages/xdwlan-login/build/xdwlan-login-linux $DIST_DIR/xdwlan-login
           tar cf - -C dist xdwlan-login-x86_64-unknown-linux-gnu | xz > dist/xdwlan-login-x86_64-unknown-linux-gnu.tar.xz
 
       - name: Upload artifact
@@ -67,35 +49,28 @@ jobs:
         with:
           name: linux-artifact
           path: dist/xdwlan-login-x86_64-unknown-linux-gnu.tar.xz
-          retention-days: 2
+          retention-days: 7
 
   build-windows:
     runs-on: windows-latest
     env:
       TARGET: "x86_64-pc-windows-msvc"
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Deno
-        uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.x
-
-      - name: Install Deno dependencies
-        run: deno install
-
-      - name: Build Deno application
-        run: deno task bundle && deno task compile:windows
-
-      - name: Set up Rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
           override: true
           target: ${{ env.TARGET }}
 
-      - name: Build Rust application
+      - name: Install bun dependencies
+        run: bun install
+
+      - name: Build bun app (login server)
+        run: bun run -F xdwlan-login build:windows
+
+      - name: Build tray ui app
         run: cargo build --release --target $env:TARGET
 
       - name: Create dist
@@ -103,9 +78,8 @@ jobs:
           DIST_DIR: "dist/xdwlan-login-x86_64-pc-windows-msvc"
         run: |
           New-Item -ItemType Directory -Path $env:DIST_DIR
-          Copy-Item build/xdwlan-login-worker.exe -Destination $env:DIST_DIR
-          Copy-Item target/$env:TARGET/release/xdwlan-login.exe -Destination $env:DIST_DIR
           Copy-Item config.example.yaml -Destination $env:DIST_DIR/config.yaml
+          Copy-Item target/$env:TARGET/release/xdwlan-login.exe -Destination $env:DIST_DIR
           Compress-Archive -Path $env:DIST_DIR -DestinationPath dist/xdwlan-login-x86_64-pc-windows-msvc.zip
 
       - name: Upload artifact
@@ -113,4 +87,4 @@ jobs:
         with:
           name: windows-artifact
           path: dist/xdwlan-login-x86_64-pc-windows-msvc.zip
-          retention-days: 2
+          retention-days: 7

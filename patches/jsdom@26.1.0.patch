@@ -1,0 +1,17 @@
+diff --git a/lib/jsdom/living/window/navigation.js b/lib/jsdom/living/window/navigation.js
+index 84801366e490656ad18e0869802a97bdad3d5117..8804f9d3ff5cb9e5df06c53402130c1af3a65fab 100644
+--- a/lib/jsdom/living/window/navigation.js
++++ b/lib/jsdom/living/window/navigation.js
+@@ -52,6 +52,12 @@ exports.navigate = (window, newURL, flags) => {
+     }, 0);
+     return;
+   }
++
++  // Provide target href in error message
++  const newHref = `${newURL.scheme}://${newURL.host}${newURL.port ? `:${newURL.port}` : ""}/${newURL.path.join('/')}${newURL.query ? `?${newURL.query}` : ""}${newURL.fragment ? `#${newURL.fragment}` : ""}`;
++  notImplemented(`navigate to ${newHref}`, window);
++  return;
++
+   navigateFetch(window);
+ };
+ 

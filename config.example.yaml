@@ -1,3 +1,5 @@
 username: "学号"
 password: "密码"
 domain: "" # 留空表示默认，中国移动填 "@yd"，中国联通填 "@lt"，中国电信填 "@dx"
+
+level: "info" # 日志级别, 可选值: trace, debug, info, warn, error, fatal, silent, 也可以留空
