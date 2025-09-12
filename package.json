@@ -1,15 +1,8 @@
 {
-  "name": "xdwlan-login-worker",
-  "description": "A deno program that simulates browser for auto login",
+  "name": "xdwlan-login",
+  "private": true,
   "type": "module",
-  "private": "true",
-  "author": "Silver Ling",
-  "license": "MIT",
-  "dependencies": {
-    "happy-dom": "^17.4.4"
-  },
-  "devDependencies": {
-    "@types/node": "^22.15.17",
-    "esbuild": "^0.25.4"
-  }
+  "workspaces": [
+    "packages/xdwlan-login"
+  ]
 }
