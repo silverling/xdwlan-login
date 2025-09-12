@@ -1,6 +1,6 @@
 <h1>
   Xidian WLAN Login | 西电校园网登录助手
-  <img src="resources/icons/avocado.png" alt="Logo" height="48" style="vertical-align: middle; margin-left: 8px;" />
+  <img src="resources/icons/avocado.png" alt="Logo" height="36" style="vertical-align: middle; margin-left: 8px;" />
 </h1>
 
 通过 Web Portal 认证方式。可以运行在后台保持网络连接。支持自动重连、开机自启。
