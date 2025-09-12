@@ -20,16 +20,16 @@ fn main() {
         eprintln!("{}={}", key, value);
     }
 
-    // Define paths
-    let example_config_path = Path::new("../../config.yaml");
+    // Define paths, relative to the build.rs
+    let config_path = Path::new("../../config.yaml");
     let target_config_path = target_dir.join("config.yaml");
-    let server_exe_path =
-        Path::new("../../packages/xdwlan-login/build/xdwlan-login-windows-server.exe"); // relative to the build.rs
-    let target_exe_path = target_dir.join("xdwlan-login-server.exe");
+    let server_path =
+        Path::new("../../packages/xdwlan-login/build/xdwlan-login-windows-server.exe");
+    let target_server_path = target_dir.join("xdwlan-login-server.exe");
 
     // Delete the existing server executable
-    if server_exe_path.exists() {
-        fs::remove_file(&server_exe_path).unwrap();
+    if server_path.exists() {
+        fs::remove_file(&server_path).unwrap();
     }
 
     // Always build bun program
@@ -49,16 +49,16 @@ fn main() {
     println!("cargo:info=Build login server completed");
 
     // Copy the executable to target directory
-    if server_exe_path.exists() {
-        fs::copy(&server_exe_path, &target_exe_path).expect("Failed to copy server executable");
+    if server_path.exists() {
+        fs::copy(&server_path, &target_server_path).expect("Failed to copy server executable");
         println!("cargo:info=Copied server executable to target directory");
     } else {
         panic!("Server executable still not found after build attempt");
     }
 
-    // Copy an example config file to the target directory if it doesn't exist
-    if !target_config_path.exists() {
-        fs::copy(&example_config_path, &target_config_path).expect("Failed to copy example config");
-        println!("cargo:info=Copied example config to target directory");
+    // Copy the config file to the target directory if it doesn't exist
+    if config_path.exists() && !target_config_path.exists() {
+        fs::copy(&config_path, &target_config_path).expect("Failed to copy config");
+        println!("cargo:info=Copied config to target directory");
     }
 }
