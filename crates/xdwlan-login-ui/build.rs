@@ -34,7 +34,7 @@ fn main() {
 
     // Always build bun program
     println!("cargo:info=Building login server");
-    let output = Command::new("bun.cmd")
+    let output = Command::new("bun")
         .args(&["run", "build:windows", &profile])
         .current_dir("../../packages/xdwlan-login")
         .output()

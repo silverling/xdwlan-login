@@ -21,7 +21,8 @@ await Bun.build({
   entrypoints: ["./build/xdwlan-login-linux.js"],
   outdir: "./build",
   compile: {
-    target: "bun-linux-x64-modern-glibc",
+    // @ts-ignore, see: https://bun.com/docs/bundler/executables#cross-compile-to-other-platforms
+    target: "bun-linux-x64-modern",
     outfile: "xdwlan-login-linux",
   },
 });
