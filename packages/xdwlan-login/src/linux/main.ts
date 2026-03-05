@@ -4,7 +4,7 @@ import { exit, handleSignal } from "@lib/instrumentation";
 
 async function main() {
   handleSignal();
-  const options = parseArgs();
+  const options = await parseArgs();
 
   if (options.oneshot) {
     const oneshot = await import("@lib/mode").then((m) => m.oneshot);

@@ -36,19 +36,27 @@ jobs:
         run: bun run -F xdwlan-login build:linux
 
       - name: Create dist
-        env:
-          DIST_DIR: "dist/xdwlan-login-x86_64-unknown-linux-gnu"
         run: |
-          mkdir -p $DIST_DIR
-          cp config.example.yaml $DIST_DIR/config.yaml
-          cp packages/xdwlan-login/build/xdwlan-login-linux $DIST_DIR/xdwlan-login
+          mkdir -p dist/xdwlan-login-x86_64-unknown-linux-gnu dist/xdwlan-login-x86_64-unknown-linux-musl
+          cp config.example.yaml dist/xdwlan-login-x86_64-unknown-linux-gnu/config.yaml
+          cp config.example.yaml dist/xdwlan-login-x86_64-unknown-linux-musl/config.yaml
+          cp packages/xdwlan-login/build/xdwlan-login-linux-gnu dist/xdwlan-login-x86_64-unknown-linux-gnu/xdwlan-login
+          cp packages/xdwlan-login/build/xdwlan-login-linux-musl dist/xdwlan-login-x86_64-unknown-linux-musl/xdwlan-login
           tar cf - -C dist xdwlan-login-x86_64-unknown-linux-gnu | xz > dist/xdwlan-login-x86_64-unknown-linux-gnu.tar.xz
+          tar cf - -C dist xdwlan-login-x86_64-unknown-linux-musl | xz > dist/xdwlan-login-x86_64-unknown-linux-musl.tar.xz
 
-      - name: Upload artifact
+      - name: Upload GNU artifact
         uses: actions/upload-artifact@v4
         with:
-          name: linux-artifact
+          name: linux-gnu-artifact
           path: dist/xdwlan-login-x86_64-unknown-linux-gnu.tar.xz
+          retention-days: 7
+
+      - name: Upload musl artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-musl-artifact
+          path: dist/xdwlan-login-x86_64-unknown-linux-musl.tar.xz
           retention-days: 7
 
   build-windows:
@@ -74,13 +82,11 @@ jobs:
         run: cargo build --release --target $env:TARGET
 
       - name: Create dist
-        env:
-          DIST_DIR: "dist/xdwlan-login-x86_64-pc-windows-msvc"
         run: |
-          New-Item -ItemType Directory -Path $env:DIST_DIR
-          Copy-Item config.example.yaml -Destination $env:DIST_DIR/config.yaml
-          Copy-Item target/$env:TARGET/release/xdwlan-login.exe -Destination $env:DIST_DIR
-          Compress-Archive -Path $env:DIST_DIR -DestinationPath dist/xdwlan-login-x86_64-pc-windows-msvc.zip
+          New-Item -ItemType Directory -Path dist/xdwlan-login-x86_64-pc-windows-msvc
+          Copy-Item config.example.yaml -Destination dist/xdwlan-login-x86_64-pc-windows-msvc/config.yaml
+          Copy-Item target/$env:TARGET/release/xdwlan-login.exe -Destination dist/xdwlan-login-x86_64-pc-windows-msvc
+          Compress-Archive -Path dist/xdwlan-login-x86_64-pc-windows-msvc -DestinationPath dist/xdwlan-login-x86_64-pc-windows-msvc.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
