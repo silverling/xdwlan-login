@@ -20,15 +20,17 @@
 <summary>方法一 ：一键脚本安装</summary>
 
 ```bash
-curl -sSL https://github.com/silverling/xdwlan-login/raw/refs/heads/main/scripts/install.sh | bash
+curl -sSL https://github.com/silverling/xdwlan-login/raw/refs/heads/main/scripts/install.sh | sh
 ```
 
 PS：在安装脚本中，该程序将被自动安装到 `/opt/xdwlan-login` 目录下，并软链接到 `/usr/local/bin/xdwlan-login`。
 
-PS：如果你的网络无法连接到 GitHub 导致下载失败，也可以通过其他方式手动下载 [`install.sh`](https://github.com/silverling/xdwlan-login/raw/refs/heads/main/scripts/install.sh) 和 [`xdwlan-login-x86_64-unknown-linux-gnu.tar.xz`](https://github.com/silverling/xdwlan-login/releases/latest/download/xdwlan-login-x86_64-unknown-linux-gnu.tar.xz) 到同一目录，然后在该目录下执行
+PS：如果你的网络无法连接到 GitHub 导致下载失败，也可以通过其他方式手动下载 [`install.sh`](https://github.com/silverling/xdwlan-login/raw/refs/heads/main/scripts/install.sh) 和对应平台安装包到同一目录（常见为 glibc 的 `xdwlan-login-x86_64-unknown-linux-gnu.tar.xz`，Alpine 为 musl 的 `xdwlan-login-x86_64-unknown-linux-musl.tar.xz`），然后在该目录下执行
 
 ```bash
-bash ./install.sh xdwlan-login-x86_64-unknown-linux-gnu.tar.xz
+sh ./install.sh xdwlan-login-x86_64-unknown-linux-gnu.tar.xz
+# Alpine Linux 可改为：
+# sh ./install.sh xdwlan-login-x86_64-unknown-linux-musl.tar.xz
 ```
 
 </details>
@@ -39,6 +41,7 @@ bash ./install.sh xdwlan-login-x86_64-unknown-linux-gnu.tar.xz
   
 ```bash
 curl -sSL https://github.com/silverling/xdwlan-login/releases/latest/download/xdwlan-login-x86_64-unknown-linux-gnu.tar.xz -O xdwlan-login.tar.xz
+# Alpine Linux 可改为下载 xdwlan-login-x86_64-unknown-linux-musl.tar.xz
 tar -xf xdwlan-login.tar.xz
 ```
 
@@ -56,6 +59,7 @@ Linux 版程序有三种运行模式：
 - `xdwlan-login --oneshot`：登录校园网，然后退出。
 - `xdwlan-login`：登录校园网，然后持续运行，定时监测网络状态，自动断网重连。
 - `sudo systemctl enable --now xdwlan-login.service`：开机自启，然后持续运行，定时监测网络状态，自动断网重连。
+- Alpine (OpenRC)：`sudo rc-update add xdwlan-login default && sudo rc-service xdwlan-login start`。
 
 ## 问题排查
 
