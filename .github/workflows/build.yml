@@ -26,7 +26,7 @@ jobs:
   build-linux:
     runs-on: ubuntu-22.04 # Build on slightly old machine for better GLIBC compatibility.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
 
       - name: Install bun dependencies
@@ -46,14 +46,14 @@ jobs:
           tar cf - -C dist xdwlan-login-x86_64-unknown-linux-musl | xz > dist/xdwlan-login-x86_64-unknown-linux-musl.tar.xz
 
       - name: Upload GNU artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux-gnu-artifact
           path: dist/xdwlan-login-x86_64-unknown-linux-gnu.tar.xz
           retention-days: 7
 
       - name: Upload musl artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux-musl-artifact
           path: dist/xdwlan-login-x86_64-unknown-linux-musl.tar.xz
@@ -64,7 +64,7 @@ jobs:
     env:
       TARGET: "x86_64-pc-windows-msvc"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
@@ -89,7 +89,7 @@ jobs:
           Compress-Archive -Path dist/xdwlan-login-x86_64-pc-windows-msvc -DestinationPath dist/xdwlan-login-x86_64-pc-windows-msvc.zip
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: windows-artifact
           path: dist/xdwlan-login-x86_64-pc-windows-msvc.zip
