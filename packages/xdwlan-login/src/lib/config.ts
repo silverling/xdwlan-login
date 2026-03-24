@@ -10,7 +10,7 @@ const ConfigSchema = z.object({
   domain: z
     .enum(
       ["", "@lt", "@dx", "@yd"],
-      '校园网套餐配置错误，可选项有 "@lt", "@dx", "@yd", 普通校园网可留空'
+      '校园网套餐配置错误，可选项有 "@lt", "@dx", "@yd", 普通校园网可留空',
     )
     .nullish()
     .transform((x) => x ?? undefined)
@@ -44,7 +44,6 @@ function getConfigPath() {
 }
 
 function getConfig() {
-  const execDir = getExecDir();
   const configPath = getConfigPath();
   try {
     logger.info(`Loading config from ${configPath}`);

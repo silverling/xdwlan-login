@@ -221,7 +221,6 @@ install() {
 
   run_as_root ln -sf /opt/xdwlan-login/xdwlan-login /usr/local/bin/xdwlan-login
   run_as_root chmod +x /usr/local/bin/xdwlan-login
-  mkdir -p ~/.config/xdwlan-login
 
   # Create systemd service file
   if has systemctl && [ -d "/etc/systemd/system" ]; then
