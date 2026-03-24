@@ -16,11 +16,15 @@ export async function oneshot(): Promise<boolean> {
   // Try to login in max 5 attempts
   logger.info("Offline detected. Try to login.");
   for (let i = 1; i <= 5; ++i) {
-    await login();
+    try {
+      await login();
 
-    if (await isOnline()) {
-      logger.info("Login successfully.");
-      return true;
+      if (await isOnline()) {
+        logger.info("Login successfully.");
+        return true;
+      }
+    } catch (err) {
+      logger.error(err, `Error occurred while logging in attempt ${i}.`);
     }
 
     logger.info(`Login failed. ${5 - i} attempts remaining.`);
@@ -44,14 +48,26 @@ export async function daemon(): Promise<never> {
 
     logger.info("Offline detected. Try to login.");
     while (true) {
-      await login();
+      try {
+        await login();
 
-      if (await isOnline()) {
-        logger.info("Login successfully.");
-        break;
-      } else {
-        logger.info("Login failed. Retry in 3 seconds.");
-        await sleep(3000);
+        if (await isOnline()) {
+          logger.info("Login successfully.");
+          break;
+        } else {
+          logger.info("Login failed. Retry in 3 seconds.");
+          await sleep(3000);
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          if (err.code === "ECONNREFUSED") {
+            logger.error(err, "Connection refused. Retry in 10 seconds.");
+            await sleep(10000);
+          }
+        }
+
+        logger.error(err, `Unhandled error: ${err}. Retry in 10 seconds.`);
+        await sleep(10000);
       }
     }
   }
