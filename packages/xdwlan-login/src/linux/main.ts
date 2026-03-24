@@ -9,12 +9,12 @@ async function main() {
   if (options.oneshot) {
     const oneshot = await import("@lib/mode").then((m) => m.oneshot);
     logger.info("Start. Running in oneshot mode.");
-    await oneshot();
+    await oneshot(options);
     exit();
   } else {
     const daemon = await import("@lib/mode").then((m) => m.daemon);
     logger.info("Start. Running in daemon mode.");
-    await daemon();
+    await daemon(options);
   }
 }
 
