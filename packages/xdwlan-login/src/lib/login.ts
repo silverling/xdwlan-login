@@ -1,15 +1,13 @@
 import { sleep } from "bun";
 import { Browser } from "./browser";
 import { logger } from "./logger";
-import { config } from "./config";
+import { type Config } from "./config";
 
-export async function login() {
+export async function login(config: Config) {
   logger.trace("LoginTask: start");
 
   const browser = new Browser();
-  await browser.goto(
-    config.url ?? "https://w.xidian.edu.cn/index_8.html",
-  );
+  await browser.goto(config.url ?? "https://w.xidian.edu.cn/index_8.html");
 
   // Wait 5 seconds to make sure the page is fully loaded and navigation/redirections are complete.
   await sleep(5000);

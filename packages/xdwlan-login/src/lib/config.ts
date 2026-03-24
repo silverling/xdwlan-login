@@ -10,7 +10,7 @@ const ConfigSchema = z.object({
   domain: z
     .enum(
       ["", "@lt", "@dx", "@yd"],
-      '校园网套餐配置错误，可选项有 "@lt", "@dx", "@yd", 普通校园网可留空'
+      '校园网套餐配置错误，可选项有 "@lt", "@dx", "@yd", 普通校园网可留空',
     )
     .nullish()
     .transform((x) => x ?? undefined)
@@ -19,7 +19,15 @@ const ConfigSchema = z.object({
   url: z.url().nullish(),
 });
 
-function getConfigPath() {
+export function getConfigPath(explicitPath?: string) {
+  if (explicitPath) {
+    if (fs.existsSync(explicitPath)) {
+      return path.resolve(explicitPath);
+    }
+    logger.fatal(`Config file not found: ${explicitPath}`);
+    process.exit(1);
+  }
+
   // From environment variable
   let configPath = process.env.XDWLAN_LOGIN_CONFIG_PATH;
   if (configPath && fs.existsSync(configPath)) {
@@ -43,9 +51,8 @@ function getConfigPath() {
   process.exit(1);
 }
 
-function getConfig() {
-  const execDir = getExecDir();
-  const configPath = getConfigPath();
+export function getConfig(explicitPath?: string) {
+  const configPath = getConfigPath(explicitPath);
   try {
     logger.info(`Loading config from ${configPath}`);
     const configContent = fs.readFileSync(configPath, "utf-8");
@@ -73,4 +80,4 @@ function getConfig() {
 }
 
 export type Config = z.infer<typeof ConfigSchema>;
-export const config = getConfig();
+// export const config = getConfig();
