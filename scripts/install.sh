@@ -245,6 +245,8 @@ EOF
   elif [ "$distro" = "alpine" ] && [ -d "/etc/init.d" ]; then
     OPENRC_AVAILABLE=1
     info "正在创建 OpenRC 服务文件..."
+    run_as_root mkdir -p /var/log/xdwlan-login
+    run_as_root touch /var/log/xdwlan-login/stdout.log /var/log/xdwlan-login/stderr.log
     OPENRC_SERVICE_FILE="/etc/init.d/xdwlan-login"
     cat <<'EOF' | run_as_root tee "$OPENRC_SERVICE_FILE" >/dev/null
 #!/sbin/openrc-run
@@ -254,6 +256,8 @@ description="xdwlan-login service"
 command="/usr/local/bin/xdwlan-login"
 command_background=true
 pidfile="/run/${RC_SVCNAME}.pid"
+output_log="/var/log/xdwlan-login/stdout.log"
+error_log="/var/log/xdwlan-login/stderr.log"
 
 depend() {
     need net
@@ -289,6 +293,11 @@ EOF
 
     sudo rc-update add xdwlan-login default
     sudo rc-service xdwlan-login start
+
+查看 OpenRC 服务日志:
+
+    tail -f /var/log/xdwlan-login/stdout.log
+    tail -f /var/log/xdwlan-login/stderr.log
 
 EOF
   else
