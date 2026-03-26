@@ -31,7 +31,7 @@ export async function login(config: Config) {
     logger.trace(
       `LoginTask: filled up login form, username: ${config.username} password: ${config.password} domain: ${config.domain}`,
     );
-    await sleep(3000); // Wait 3 seconds before check login status.
+    await sleep(5000); // Wait 5 seconds before check login status.
   } else {
     logger.info(`Unknown page: ${browser.window.location.href}`);
     return;
