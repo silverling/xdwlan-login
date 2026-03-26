@@ -80,4 +80,3 @@ export function getConfig(explicitPath?: string) {
 }
 
 export type Config = z.infer<typeof ConfigSchema>;
-// export const config = getConfig();

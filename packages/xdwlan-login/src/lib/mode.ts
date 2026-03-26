@@ -28,8 +28,10 @@ export async function oneshot(config: Config): Promise<boolean> {
       logger.error(err, `Error occurred while logging in attempt ${i}.`);
     }
 
-    logger.info(`Login failed. ${5 - i} attempts remaining.`);
-    await sleep(1000);
+    logger.info(
+      `Login failed. ${5 - i} attempts remaining. Retry in 20 seconds.`,
+    );
+    await sleep(20000);
   }
 
   return await isOnline();
@@ -56,19 +58,20 @@ export async function daemon(config: Config): Promise<never> {
           logger.info("Login successfully.");
           break;
         } else {
-          logger.info("Login failed. Retry in 3 seconds.");
-          await sleep(3000);
+          logger.info("Login failed. Retry in 20 seconds.");
+          await sleep(20000);
         }
       } catch (err) {
         if (err instanceof Error) {
           if (err.code === "ECONNREFUSED") {
-            logger.error(err, "Connection refused. Retry in 10 seconds.");
-            await sleep(10000);
+            logger.error(err, "Connection refused. Retry in 20 seconds.");
+            await sleep(20000);
+            continue;
           }
         }
 
-        logger.error(err, `Unhandled error: ${err}. Retry in 10 seconds.`);
-        await sleep(10000);
+        logger.error(err, `Unhandled error: ${err}. Retry in 20 seconds.`);
+        await sleep(20000);
       }
     }
   }
