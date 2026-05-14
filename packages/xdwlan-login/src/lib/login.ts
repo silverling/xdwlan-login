@@ -29,7 +29,7 @@ export async function login(config: Config) {
     }
 
     logger.trace(
-      `LoginTask: filled up login form, username: ${config.username} password: ${config.password} domain: ${config.domain}`,
+      `LoginTask: filled up login form, username: ${config.username} password: <redacted> domain: ${config.domain}`,
     );
     await sleep(5000); // Wait 5 seconds before check login status.
   } else {
