@@ -23,6 +23,18 @@ on:
   workflow_call:
 
 jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install bun dependencies
+        run: bun install
+
+      - name: Typecheck package
+        run: bun run -F xdwlan-login typecheck
+
   build-linux:
     runs-on: ubuntu-22.04 # Build on slightly old machine for better GLIBC compatibility.
     steps:

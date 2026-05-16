@@ -4,6 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "build:linux": "bun run scripts/build-linux.ts",
     "build:windows": "bun run scripts/build-windows.ts"
   },
