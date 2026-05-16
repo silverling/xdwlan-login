@@ -36,7 +36,9 @@ jobs:
           node-version: lts/*
 
       - name: Generate changelog
-        run: npx changelogithub@13.13.0 --output dist/CHANGELOG.md
+        run: npx changelogithub@14.0.0 --output dist/CHANGELOG.md
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - name: Create release
         uses: softprops/action-gh-release@v2
