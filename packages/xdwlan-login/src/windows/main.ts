@@ -1,6 +1,7 @@
 import { logger } from "@lib/logger";
 import { exit, handleSignal } from "@lib/instrumentation";
 import { oneshot } from "@lib/mode";
+import { getConfig } from "@lib/config";
 
 function main() {
   if (!process.env.XDWLAN_LOGIN_SERVER_PORT) {
@@ -8,10 +9,11 @@ function main() {
   }
 
   handleSignal();
+  const config = getConfig();
 
   let routineHandler: NodeJS.Timeout;
   async function routine() {
-    await oneshot();
+    await oneshot(config);
     routineHandler = setTimeout(routine, 60_000);
   }
   routine();
@@ -31,7 +33,7 @@ function main() {
       },
       "/login": {
         POST: async (request) => {
-          const status = await oneshot();
+          const status = await oneshot(config);
           return new Response(status ? "ok" : "no");
         },
       },
