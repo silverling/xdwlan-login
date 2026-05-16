@@ -16,7 +16,7 @@ tray-icon = "0.14.3"
 winit = "0.30.3"
 winreg = "0.52.0"
 
-[target.'cfg(target_os = "windows")'.build-dependencies]
+[build-dependencies]
 embed-resource = "3.0.5"
 
 [[bin]]
